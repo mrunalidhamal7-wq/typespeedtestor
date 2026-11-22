@@ -1,0 +1,777 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TypeMaster Pro</title>
+<style>
+:root{
+--bg:#f4f5ff;--card:#fff;--text:#292943;--muted:#85869c;
+--primary:#7165ed;--soft:#eeecff;--border:#e7e7f0;
+--green:#18a879;--red:#ed5b72;
+}
+body.dark{
+--bg:#151628;--card:#22243a;--text:#f4f3ff;
+--muted:#a5a6bd;--primary:#9b8eff;--soft:#34304f;
+--border:#393a50;--green:#45d6a3;--red:#ff7188;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+font-family:Arial,sans-serif;transition:.2s}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+nav{background:var(--card);padding:17px 5%;
+display:flex;justify-content:space-between;align-items:center;
+border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
+.logo{font-size:23px;font-weight:800;color:var(--primary)}
+nav button{border:0;background:var(--soft);color:var(--primary);
+padding:10px;border-radius:9px}
+.container{max-width:1150px;margin:auto;padding:25px 16px}
+.hero{text-align:center;margin:15px 0 28px}
+.hero h1{font-size:32px;margin-bottom:8px}
+.hero p,.muted{color:var(--muted)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.tab,.btn{padding:11px 16px;border:0;border-radius:9px}
+.tab{background:var(--card);color:var(--text);border:1px solid var(--border)}
+.tab.active,.btn{background:var(--primary);color:white}
+.btn.secondary{background:var(--soft);color:var(--primary)}
+.btn.red{background:var(--red);color:white}
+.page{display:none}
+.page.active{display:block}
+.card,.stat{background:var(--card);border:1px solid var(--border);
+border-radius:16px;padding:21px;margin-bottom:17px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.stat h2{color:var(--primary);margin:8px 0;font-size:27px}
+.stat p{font-size:12px;color:var(--muted)}
+.title{font-size:19px;font-weight:bold;margin-bottom:17px}
+.controls,.settings{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+select,input,textarea{padding:11px;border-radius:9px;
+border:1px solid var(--border);background:var(--bg);color:var(--text)}
+.field{display:flex;flex-direction:column;gap:7px;flex:1;min-width:120px}
+.field label{font-size:12px;color:var(--muted)}
+.passage{background:var(--bg);padding:22px;border-radius:12px;
+font-size:19px;line-height:2;margin:14px 0;overflow-wrap:anywhere}
+.correct{color:var(--green)}
+.wrong{color:var(--red);background:#ed5b7220}
+.current{border-left:2px solid var(--primary)}
+textarea{width:100%;resize:vertical}
+#typing{height:105px;font-size:16px}
+.progress{height:8px;background:var(--soft);border-radius:10px;overflow:hidden;margin:15px 0}
+.progress div{height:100%;background:var(--primary);width:0}
+.result{display:none;text-align:center}
+.result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}
+.result-grid div{background:var(--bg);padding:15px;border-radius:10px}
+.result-grid h3{color:var(--primary)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.list{display:grid;gap:9px}
+.item{padding:12px;background:var(--bg);border-radius:9px;
+display:flex;justify-content:space-between;gap:8px;font-size:13px}
+.item strong{color:var(--primary)}
+.chart{width:100%;height:220px}
+#chart{width:100%;height:100%}
+.game-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.game-card{background:var(--card);border:1px solid var(--border);
+border-radius:16px;padding:20px;text-align:center;cursor:pointer;
+transition:.2s}
+.game-card:hover{transform:translateY(-4px);border-color:var(--primary)}
+.game-card .emoji{font-size:42px;margin-bottom:12px}
+.game-card h3{margin:5px}
+.game-card p{font-size:13px;color:var(--muted);line-height:1.5}
+.game-area{display:none}
+.game-area.active{display:block}
+.game-word{font-size:30px;font-weight:bold;color:var(--primary);
+text-align:center;margin:20px 0}
+.big-score{text-align:center;font-size:30px;color:var(--primary);font-weight:bold}
+.race-track{background:var(--soft);height:30px;border-radius:20px;
+margin:17px 0;overflow:hidden}
+.race-car{height:100%;width:0;background:var(--primary);
+border-radius:20px;transition:width .2s;min-width:3px}
+.race-label{display:flex;justify-content:space-between;font-size:13px}
+.memory-box{background:var(--soft);padding:24px;border-radius:12px;
+text-align:center;font-size:25px;font-weight:bold;margin:18px 0}
+.floating-keyboard{
+position:fixed;right:15px;bottom:15px;z-index:30;
+background:var(--card);border:1px solid var(--border);
+box-shadow:0 8px 35px #0003;padding:12px;border-radius:15px;
+width:min(390px,calc(100vw - 25px));
+transition:.25s;
+}
+.keyboard-head{display:flex;justify-content:space-between;
+align-items:center;margin-bottom:10px;font-size:13px;font-weight:bold}
+.keyboard-head button{border:0;background:var(--soft);
+color:var(--primary);border-radius:7px;padding:7px 10px}
+.key-row{display:flex;justify-content:center;gap:4px;margin:4px 0}
+.key{flex:1;min-width:0;height:34px;border:1px solid var(--border);
+border-radius:5px;background:var(--bg);color:var(--text);
+font-size:11px;box-shadow:0 2px 0 var(--border);padding:0 2px}
+.key.active{background:var(--primary);color:white;transform:translateY(2px);
+box-shadow:none}
+.key.space{flex:5}
+.key.wide{flex:1.6}
+.keyboard-hidden .keyboard-body{display:none}
+.keyboard-hidden{width:190px}
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.badge{background:var(--bg);padding:17px;border-radius:12px;text-align:center}
+.badge span{font-size:28px}
+.badge p{font-weight:bold;font-size:13px}
+.badge small{color:var(--muted)}
+.challenge{background:linear-gradient(120deg,#7165ed,#a47df3);
+color:white;padding:22px;border-radius:15px;margin-bottom:18px}
+footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
+#toast{display:none;position:fixed;bottom:20px;left:50%;
+transform:translateX(-50%);background:#24243b;color:white;
+padding:12px 20px;border-radius:10px;z-index:50}
+@media(max-width:700px){
+.stats{grid-template-columns:repeat(2,1fr)}
+.two{grid-template-columns:1fr}
+.game-grid{grid-template-columns:1fr}
+.badges{grid-template-columns:repeat(2,1fr)}
+.result-grid{grid-template-columns:repeat(2,1fr)}
+.hero h1{font-size:26px}
+.container{padding:17px 12px}
+.floating-keyboard{right:7px;bottom:7px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+<div class="logo">⌨ TypeMaster Pro</div>
+<button onclick="theme()">🌙 / ☀️</button>
+</nav>
+
+<div class="container">
+<div class="hero">
+<h1>Master Your Typing Skills 🚀</h1>
+<p>Practice, Play, Compete and Improve!</p>
+</div>
+
+<div class="tabs">
+<button class="tab active" onclick="page('home',this)">🏠 Home</button>
+<button class="tab" onclick="page('practice',this)">⌨ Practice</button>
+<button class="tab" onclick="page('games',this)">🎮 Games</button>
+<button class="tab" onclick="page('history',this)">📊 History</button>
+<button class="tab" onclick="page('achievements',this)">🏆 Awards</button>
+</div>
+
+<!-- HOME -->
+<section class="page active" id="home">
+<div class="challenge">
+<h3>🎯 Daily Challenge</h3>
+<p>Complete a typing test with 30 WPM and 90% accuracy.</p>
+<h2 id="daily">0 / 1 Completed</h2>
+</div>
+<div class="stats">
+<div class="stat"><p>BEST WPM</p><h2 id="best">0</h2></div>
+<div class="stat"><p>AVERAGE WPM</p><h2 id="average">0</h2></div>
+<div class="stat"><p>TOTAL TESTS</p><h2 id="total">0</h2></div>
+<div class="stat"><p>AVERAGE ACCURACY</p><h2 id="avgacc">0%</h2></div>
+</div>
+<div class="two">
+<div class="card">
+<div class="title">📈 Typing Progress</div>
+<div class="chart"><canvas id="chart"></canvas></div>
+</div>
+<div class="card">
+<div class="title">🕒 Recent Tests</div>
+<div class="list" id="recent"></div>
+</div>
+</div>
+<button class="btn" onclick="page('practice',document.querySelectorAll('.tab')[1])">Start Practice →</button>
+</section>
+
+<!-- PRACTICE -->
+<section class="page" id="practice">
+<div class="stats">
+<div class="stat"><p>TIME LEFT</p><h2 id="time">60</h2></div>
+<div class="stat"><p>WPM</p><h2 id="wpm">0</h2></div>
+<div class="stat"><p>ACCURACY</p><h2 id="accuracy">100%</h2></div>
+<div class="stat"><p>MISTAKES</p><h2 id="mistakes">0</h2></div>
+</div>
+<div class="card">
+<div class="title">Typing Settings</div>
+<div class="settings">
+<div class="field"><label>Duration</label>
+<select id="duration"><option>30</option><option selected>60</option><option>120</option></select></div>
+<div class="field"><label>Difficulty</label>
+<select id="difficulty"><option>beginner</option><option selected>intermediate</option><option>advanced</option></select></div>
+<div class="field"><label>Mode</label>
+<select id="mode"><option value="paragraph">Paragraph</option><option value="words">Words</option><option value="custom">Custom</option></select></div>
+</div>
+<textarea id="custom" rows="2" placeholder="Enter your own passage..." style="display:none"></textarea>
+<div class="title">Type the passage below</div>
+<div class="passage" id="passage"></div>
+<div class="progress"><div id="bar"></div></div>
+<textarea id="typing" rows="4" placeholder="Click Start and begin typing..." disabled></textarea>
+<div class="controls">
+<button class="btn" onclick="start()">▶ Start</button>
+<button class="btn secondary" onclick="pause()" id="pause" disabled>⏸ Pause</button>
+<button class="btn secondary" onclick="reset()">↻ Reset</button>
+<button class="btn secondary" onclick="newText()">🔄 New Text</button>
+</div>
+</div>
+<div class="card result" id="result">
+<h2>🎉 Test Completed!</h2>
+<div class="result-grid">
+<div><h3 id="fwpm">0</h3><p>WPM</p></div>
+<div><h3 id="facc">0%</h3><p>Accuracy</p></div>
+<div><h3 id="ferr">0</h3><p>Mistakes</p></div>
+<div><h3 id="fchar">0</h3><p>Characters</p></div>
+</div>
+<button class="btn" onclick="reset()">Try Again</button>
+</div>
+</section>
+
+<!-- GAMES -->
+<section class="page" id="games">
+<div class="card">
+<div class="title">🎮 Typing Arcade</div>
+<p class="muted">Choose a game, challenge yourself and have fun!</p>
+</div>
+<div class="game-grid">
+<div class="game-card" onclick="openGame('rush')">
+<div class="emoji">⚡</div><h3>Word Rush</h3>
+<p>Type as many words as possible before time runs out!</p>
+<button class="btn">Play Now</button>
+</div>
+<div class="game-card" onclick="openGame('race')">
+<div class="emoji">🏎️</div><h3>Typing Race</h3>
+<p>Race against the computer and reach the finish line!</p>
+<button class="btn">Play Now</button>
+</div>
+<div class="game-card" onclick="openGame('memory')">
+<div class="emoji">🧠</div><h3>Memory Challenge</h3>
+<p>Remember the word and type it correctly from memory!</p>
+<button class="btn">Play Now</button>
+</div>
+</div>
+
+<!-- WORD RUSH -->
+<div class="card game-area" id="rush">
+<div class="title">⚡ Word Rush</div>
+<p class="muted">Type the displayed word and press Enter.</p>
+<div class="stats">
+<div class="stat"><p>TIME</p><h2 id="rtime">30</h2></div>
+<div class="stat"><p>SCORE</p><h2 id="score">0</h2></div>
+<div class="stat"><p>WORDS</p><h2 id="words">0</h2></div>
+<div class="stat"><p>STREAK</p><h2 id="streak">0</h2></div>
+</div>
+<div class="game-word" id="rushword">Ready?</div>
+<input id="rushinput" placeholder="Type the word here..." style="width:100%">
+<div class="controls">
+<button class="btn" onclick="startRush()">Start Game</button>
+<button class="btn secondary" onclick="stopGames()">Stop</button>
+</div>
+<p id="rushmsg" class="muted"></p>
+</div>
+
+<!-- RACE -->
+<div class="card game-area" id="race">
+<div class="title">🏎️ Typing Race</div>
+<p class="muted">Complete the passage before your computer opponent!</p>
+<div class="race-label"><b>🏎️ You</b><b id="youPercent">0%</b></div>
+<div class="race-track"><div class="race-car" id="youcar"></div></div>
+<div class="race-label"><b>🤖 Computer</b><b id="botPercent">0%</b></div>
+<div class="race-track"><div class="race-car" id="botcar" style="background:#f49a54"></div></div>
+<div class="passage" id="racepassage"></div>
+<textarea id="raceinput" rows="3" placeholder="Type the race passage..." disabled></textarea>
+<div class="controls">
+<button class="btn" onclick="startRace()">Start Race</button>
+<button class="btn secondary" onclick="stopGames()">Stop</button>
+</div>
+<p id="racemsg" class="muted"></p>
+</div>
+
+<!-- MEMORY -->
+<div class="card game-area" id="memory">
+<div class="title">🧠 Memory Challenge</div>
+<p class="muted">Remember the word shown below. It will disappear after a few seconds.</p>
+<div class="big-score">Score: <span id="mscore">0</span></div>
+<div class="memory-box" id="memoryword">Press Start!</div>
+<input id="memoryinput" placeholder="Type the remembered word..." style="width:100%" disabled>
+<div class="controls">
+<button class="btn" onclick="startMemory()">Start Challenge</button>
+<button class="btn secondary" onclick="stopGames()">Stop</button>
+</div>
+<p id="memorymsg" class="muted"></p>
+</div>
+</section>
+
+<!-- HISTORY -->
+<section class="page" id="history">
+<div class="card">
+<div class="title">📊 Test History</div>
+<div class="list" id="historylist"></div>
+<div class="controls">
+<button class="btn secondary" onclick="csv()">⬇ Export CSV</button>
+<button class="btn red" onclick="clearHistory()">Clear History</button>
+</div>
+</div>
+</section>
+
+<!-- ACHIEVEMENTS -->
+<section class="page" id="achievements">
+<div class="card">
+<div class="title">🏆 Achievements</div>
+<div class="badges" id="badges"></div>
+</div>
+</section>
+</div>
+
+<!-- FLOATING KEYBOARD -->
+<div class="floating-keyboard" id="keyboard">
+<div class="keyboard-head">
+<span>⌨ Virtual Keyboard</span>
+<button onclick="minKeyboard()">−</button>
+<button onclick="toggleKeyboard()">Hide</button>
+</div>
+<div class="keyboard-body" id="keyboardBody">
+<div class="key-row">
+<button class="key" data-key="q">Q</button><button class="key" data-key="w">W</button>
+<button class="key" data-key="e">E</button><button class="key" data-key="r">R</button>
+<button class="key" data-key="t">T</button><button class="key" data-key="y">Y</button>
+<button class="key" data-key="u">U</button><button class="key" data-key="i">I</button>
+<button class="key" data-key="o">O</button><button class="key" data-key="p">P</button>
+</div>
+<div class="key-row">
+<button class="key" data-key="a">A</button><button class="key" data-key="s">S</button>
+<button class="key" data-key="d">D</button><button class="key" data-key="f">F</button>
+<button class="key" data-key="g">G</button><button class="key" data-key="h">H</button>
+<button class="key" data-key="j">J</button><button class="key" data-key="k">K</button>
+<button class="key" data-key="l">L</button>
+</div>
+<div class="key-row">
+<button class="key wide" data-key="shift">⇧</button>
+<button class="key" data-key="z">Z</button><button class="key" data-key="x">X</button>
+<button class="key" data-key="c">C</button><button class="key" data-key="v">V</button>
+<button class="key" data-key="b">B</button><button class="key" data-key="n">N</button>
+<button class="key" data-key="m">M</button>
+<button class="key wide" data-key="backspace">⌫</button>
+</div>
+<div class="key-row">
+<button class="key wide" data-key="enter">Enter</button>
+<button class="key space" data-key=" ">SPACE</button>
+<button class="key wide" data-key="arrowleft">←</button>
+</div>
+</div>
+</div>
+
+<div id="toast"></div>
+<footer>TypeMaster Pro · Practice · Play · Improve</footer>
+
+<script>
+// DATA
+const texts={
+beginner:["The sun is shining and the sky is blue. I like to read books and learn new things every day.","My school is a wonderful place. I enjoy learning with my friends and teachers.","A good habit can make life better. Read books and keep learning."],
+intermediate:["Technology is changing the world every day. Computers help people communicate, learn, work and solve problems.","Success comes from consistency and hard work. Every small step brings you closer to your goals.","Programming helps us create websites and applications. Learning something new makes our future brighter."],
+advanced:["Digital innovation continues to transform modern industries through communication, creativity and technology.","Developing technical skills requires curiosity, patience, logical thinking and consistent practice.","Efficient communication and analytical thinking are essential for an interconnected digital environment."]
+};
+const words="apple happy garden music keyboard school computer orange purple window flower laptop student creative practice design future coding browser amazing beautiful learning";
+const wordList=words.split(" ");
+
+let history=JSON.parse(localStorage.getItem("tmhistory")||"[]");
+let target="",timer=null,active=false,paused=false,finished=false;
+let remaining=60,elapsed=0,last=0,errors=0,correct=0;
+let gameTimer=null,gameActive=false,gameMode="";
+let gameScore=0,gameStreak=0,botProgress=0,memoryAnswer="";
+const $=id=>document.getElementById(id);
+
+// NAVIGATION
+function page(id,btn){
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+ document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+ $(id).classList.add("active");
+ if(btn)btn.classList.add("active");
+ if(id==="home")dashboard();
+ if(id==="history")renderHistory();
+ if(id==="achievements")renderBadges();
+}
+
+// THEME
+function theme(){
+ document.body.classList.toggle("dark");
+ localStorage.setItem("tmtheme",document.body.classList.contains("dark")?"dark":"light");
+ drawChart();
+}
+if(localStorage.getItem("tmtheme")==="dark")document.body.classList.add("dark");
+
+// PASSAGES
+function makeText(){
+ let mode=$("mode").value,diff=$("difficulty").value;
+ if(mode==="custom"){
+ target=$("custom").value.trim();
+ if(!target){toast("Enter your custom text first!");return false;}
+ }else if(mode==="words"){
+ target=Array.from({length:50},()=>wordList[Math.floor(Math.random()*wordList.length)]).join(" ");
+ }else{
+ let arr=texts[diff];
+ target=arr[Math.floor(Math.random()*arr.length)];
+ }
+ renderText();return true;
+}
+function renderText(){
+ $("passage").innerHTML="";
+ [...target].forEach((c,i)=>{
+ let s=document.createElement("span");
+ s.textContent=c;s.id="c"+i;
+ $("passage").appendChild(s);
+ });
+}
+function newText(){if(active)return toast("Reset the test first!");if(makeText())reset();}
+
+// MAIN TEST
+const typing=$("typing");
+function start(){
+ if(active&&!paused)return;
+ if(finished)reset();
+ if(!target&&!makeText())return;
+ if(!active)remaining=Number($("duration").value);
+ active=true;paused=false;typing.disabled=false;typing.focus();
+ last=Date.now();
+ $("pause").disabled=false;
+ $("pause").textContent="⏸ Pause";
+ clearInterval(timer);
+ timer=setInterval(tick,100);
+}
+function tick(){
+ if(!active||paused||finished)return;
+ elapsed+=Date.now()-last;last=Date.now();
+ remaining=Math.max(0,Number($("duration").value)-Math.floor(elapsed/1000));
+ $("time").textContent=remaining;
+ stats();
+ if(remaining<=0)end();
+}
+function pause(){
+ if(!active||finished)return;
+ if(!paused){
+ paused=true;clearInterval(timer);typing.disabled=true;
+ $("pause").textContent="▶ Resume";
+ }else{
+ paused=false;typing.disabled=false;last=Date.now();
+ timer=setInterval(tick,100);typing.focus();
+ $("pause").textContent="⏸ Pause";
+ }
+}
+typing.addEventListener("input",()=>{
+ if(active&&!paused&&!finished){
+ if(typing.value.length>target.length)typing.value=typing.value.slice(0,target.length);
+ stats();
+ }
+});
+function stats(){
+ let v=typing.value;correct=0;errors=0;
+ [...v].forEach((c,i)=>c===target[i]?correct++:errors++);
+ let acc=v.length?Math.round(correct/v.length*100):100;
+ let speed=Math.round((correct/5)/Math.max(elapsed/60000,1/60000));
+ $("wpm").textContent=speed;
+ $("accuracy").textContent=acc+"%";
+ $("mistakes").textContent=errors;
+ $("bar").style.width=(v.length/target.length*100)+"%";
+ [...target].forEach((c,i)=>{
+ let s=$("c"+i);if(!s)return;
+ s.className="";
+ if(i<v.length)s.className=v[i]===c?"correct":"wrong";
+ else if(i===v.length)s.className="current";
+ });
+ let cur=$("c"+v.length);
+ if(cur)cur.scrollIntoView({block:"nearest",behavior:"smooth"});
+ if(v.length>=target.length)end();
+}
+function reset(){
+ clearInterval(timer);active=false;paused=false;finished=false;
+ elapsed=0;remaining=Number($("duration").value);
+ typing.value="";typing.disabled=true;
+ $("time").textContent=remaining;$("wpm").textContent=0;
+ $("accuracy").textContent="100%";$("mistakes").textContent=0;
+ $("bar").style.width="0%";$("result").style.display="none";
+ $("pause").disabled=true;$("pause").textContent="⏸ Pause";
+ if(target)renderText();
+}
+function end(){
+ if(finished)return;
+ finished=true;active=false;clearInterval(timer);
+ typing.disabled=true;stats();
+ let speed=Math.round((correct/5)/Math.max(elapsed/60000,1/60000));
+ let acc=typing.value.length?Math.round(correct/typing.value.length*100):0;
+ let result={wpm:speed,accuracy:acc,errors,chars:typing.value.length,date:new Date().toLocaleString()};
+ history.unshift(result);history=history.slice(0,10);
+ localStorage.setItem("tmhistory",JSON.stringify(history));
+ $("fwpm").textContent=speed;$("facc").textContent=acc+"%";
+ $("ferr").textContent=errors;$("fchar").textContent=typing.value.length;
+ $("result").style.display="block";
+ dashboard();renderBadges();
+}
+$("mode").onchange=()=>{
+ $("custom").style.display=$("mode").value==="custom"?"block":"none";
+};
+$("difficulty").onchange=()=>{if(!active){makeText();reset();}};
+
+// DASHBOARD
+function dashboard(){
+ let avg=history.length?Math.round(history.reduce((a,x)=>a+x.wpm,0)/history.length):0;
+ let best=history.length?Math.max(...history.map(x=>x.wpm)):0;
+ let acc=history.length?Math.round(history.reduce((a,x)=>a+x.accuracy,0)/history.length):0;
+ $("best").textContent=best;$("average").textContent=avg;
+ $("total").textContent=history.length;$("avgacc").textContent=acc+"%";
+ $("daily").textContent=history.some(x=>x.wpm>=30&&x.accuracy>=90)?"1 / 1 Completed 🎉":"0 / 1 Completed";
+ $("recent").innerHTML=history.slice(0,5).map(x=>
+ `<div class="item"><span>${escapeHTML(x.date)}</span><strong>${x.wpm} WPM</strong></div>`).join("")||'<p class="muted">No tests yet!</p>';
+ drawChart();
+}
+function drawChart(){
+ let c=$("chart"),ctx=c.getContext("2d");
+ let w=c.clientWidth,h=c.clientHeight,ratio=devicePixelRatio||1;
+ c.width=w*ratio;c.height=h*ratio;ctx.scale(ratio,ratio);
+ ctx.clearRect(0,0,w,h);
+ let data=history.slice(0,7).reverse();
+ let max=Math.max(20,...data.map(x=>x.wpm));
+ ctx.strokeStyle=document.body.classList.contains("dark")?"#41435c":"#e7e7f0";
+ ctx.fillStyle="#888";ctx.font="11px Arial";
+ for(let i=0;i<5;i++){
+ let y=15+i*(h-40)/4;
+ ctx.beginPath();ctx.moveTo(30,y);ctx.lineTo(w-8,y);ctx.stroke();
+ }
+ if(!data.length){ctx.textAlign="center";ctx.fillText("Complete a test to see your chart",w/2,h/2);return;}
+ ctx.strokeStyle="#7165ed";ctx.lineWidth=3;ctx.beginPath();
+ data.forEach((x,i)=>{
+ let px=30+i*(w-45)/Math.max(1,data.length-1);
+ let py=h-25-(x.wpm/max)*(h-45);
+ i?ctx.lineTo(px,py):ctx.moveTo(px,py);
+ });
+ ctx.stroke();
+}
+function renderHistory(){
+ $("historylist").innerHTML=history.map((x,i)=>
+ `<div class="item"><span>#${i+1} · ${escapeHTML(x.date)}</span><strong>${x.wpm} WPM · ${x.accuracy}%</strong></div>`
+ ).join("")||'<p class="muted">No history yet.</p>';
+}
+function clearHistory(){
+ if(confirm("Delete all test history?")){
+ history=[];localStorage.removeItem("tmhistory");
+ renderHistory();dashboard();renderBadges();toast("History cleared");
+ }
+}
+function csv(){
+ if(!history.length)return toast("No history available!");
+ let rows=["Date,WPM,Accuracy,Mistakes,Characters"];
+ history.forEach(x=>rows.push(`"${x.date}",${x.wpm},${x.accuracy},${x.errors},${x.chars}`));
+ let blob=new Blob([rows.join("\n")],{type:"text/csv"});
+ let a=document.createElement("a");a.href=URL.createObjectURL(blob);
+ a.download="typing-history.csv";a.click();URL.revokeObjectURL(a.href);
+}
+
+// ACHIEVEMENTS
+const awards=[
+["🎯","First Test",h=>h.length>=1],
+["🚀","20 WPM",h=>h.some(x=>x.wpm>=20)],
+["⚡","40 WPM",h=>h.some(x=>x.wpm>=40)],
+["👑","60 WPM",h=>h.some(x=>x.wpm>=60)],
+["💎","Perfect Accuracy",h=>h.some(x=>x.accuracy===100&&x.chars>0)],
+["🏅","10 Tests",h=>h.length>=10],
+["🔥","80 WPM",h=>h.some(x=>x.wpm>=80)]
+];
+function renderBadges(){
+ $("badges").innerHTML=awards.map(a=>{
+ let unlocked=a[2](history);
+ return `<div class="badge" style="opacity:${unlocked?1:.4}">
+ <span>${a[0]}</span><p>${a[1]}</p><small>${unlocked?"Unlocked ✓":"Locked"}</small></div>`;
+ }).join("");
+}
+
+// GAMES
+function openGame(name){
+ stopGames();
+ document.querySelectorAll(".game-area").forEach(x=>x.classList.remove("active"));
+ $(name).classList.add("active");
+ $(name).scrollIntoView({behavior:"smooth",block:"start"});
+}
+function stopGames(){
+ clearInterval(gameTimer);gameActive=false;gameMode="";
+ $("rushinput").disabled=true;$("raceinput").disabled=true;
+ $("memoryinput").disabled=true;
+}
+function randomWord(){return wordList[Math.floor(Math.random()*wordList.length)];}
+
+// WORD RUSH
+let rushTime=30,rushWord="",rushScore=0,rushWords=0,rushStreak=0;
+function startRush(){
+ stopGames();gameMode="rush";gameActive=true;
+ rushTime=30;rushScore=0;rushWords=0;rushStreak=0;
+ $("score").textContent=0;$("words").textContent=0;
+ $("streak").textContent=0;$("rtime").textContent=30;
+ $("rushmsg").textContent="Go! Type the words quickly!";
+ $("rushinput").disabled=false;$("rushinput").value="";
+ nextRush();$("rushinput").focus();
+ clearInterval(gameTimer);
+ gameTimer=setInterval(()=>{
+ rushTime--;$("rtime").textContent=rushTime;
+ if(rushTime<=0){
+ stopGames();$("rushword").textContent="Game Over!";
+ $("rushmsg").textContent="Final score: "+rushScore+" points! 🎉";
+ }
+ },1000);
+}
+function nextRush(){
+ rushWord=randomWord();$("rushword").textContent=rushWord;
+}
+$("rushinput").addEventListener("keydown",e=>{
+ if(e.key==="Enter"&&gameMode==="rush"&&gameActive){
+ if($("rushinput").value.trim().toLowerCase()===rushWord){
+ rushScore+=10;rushWords++;rushStreak++;
+ $("score").textContent=rushScore;
+ $("words").textContent=rushWords;$("streak").textContent=rushStreak;
+ nextRush();
+ }else{
+ rushStreak=0;$("streak").textContent=0;
+ }
+ $("rushinput").value="";
+ }
+});
+
+// TYPING RACE
+let raceText="",raceBot=0;
+function startRace(){
+ stopGames();gameMode="race";gameActive=true;
+ raceText="The best way to improve your typing speed is to practice every day and enjoy learning new skills.";
+ $("racepassage").textContent=raceText;
+ $("raceinput").value="";$("raceinput").disabled=false;
+ $("youcar").style.width="0%";$("botcar").style.width="0%";
+ $("youPercent").textContent="0%";$("botPercent").textContent="0%";
+ $("racemsg").textContent="The race has started!";
+ raceBot=0;$("raceinput").focus();
+ clearInterval(gameTimer);
+ gameTimer=setInterval(()=>{
+ if(!gameActive)return;
+ raceBot+=Math.random()*2.5+1;
+ raceBot=Math.min(raceBot,100);
+ $("botcar").style.width=raceBot+"%";
+ $("botPercent").textContent=Math.round(raceBot)+"%";
+ if(raceBot>=100)finishRace(false);
+ },500);
+}
+$("raceinput").addEventListener("input",()=>{
+ if(gameMode!=="race"||!gameActive)return;
+ let v=$("raceinput").value;
+ let correctCount=0;
+ for(let i=0;i<v.length;i++)if(v[i]===raceText[i])correctCount++;
+ let p=correctCount/raceText.length*100;
+ $("youcar").style.width=p+"%";$("youPercent").textContent=Math.round(p)+"%";
+ if(v.length>=raceText.length)finishRace(true);
+});
+function finishRace(won){
+ stopGames();
+ $("racemsg").textContent=won?"🏆 You won the race! Amazing!":"🤖 Computer won! Try again!";
+}
+
+// MEMORY GAME
+let memoryScore=0,memoryRound=0;
+function startMemory(){
+ stopGames();gameMode="memory";gameActive=true;
+ memoryScore=0;memoryRound=0;
+ $("mscore").textContent=0;$("memoryinput").disabled=true;
+ nextMemory();
+}
+function nextMemory(){
+ if(!gameActive)return;
+ memoryRound++;
+ memoryAnswer=randomWord();
+ $("memoryword").textContent=memoryAnswer;
+ $("memoryinput").value="";$("memoryinput").disabled=true;
+ $("memorymsg").textContent="Remember the word...";
+ clearTimeout(window.memTimeout);
+ window.memTimeout=setTimeout(()=>{
+  if(!gameActive)return;
+  $("memoryword").textContent="❓ ???";
+  $("memoryinput").disabled=false;
+  $("memoryinput").focus();
+  $("memorymsg").textContent="Now type the remembered word!";
+ },2000);
+}
+$("memoryinput").addEventListener("keydown",e=>{
+ if(e.key==="Enter"&&gameMode==="memory"&&gameActive){
+ if($("memoryinput").value.trim().toLowerCase()===memoryAnswer){
+ memoryScore+=10;$("mscore").textContent=memoryScore;
+ $("memorymsg").textContent="Correct! +10 points 🎉";
+ }else{
+ $("memorymsg").textContent="Not quite! The word was "+memoryAnswer;
+ }
+ $("memoryinput").disabled=true;
+ if(memoryRound>=10){
+ stopGames();$("memoryword").textContent="🏆 Game Completed!";
+ $("memorymsg").textContent="Your final score: "+memoryScore+"/100";
+ }else{
+ clearTimeout(window.memTimeout);
+ setTimeout(nextMemory,1200);
+ }
+ }
+});
+
+// FLOATING KEYBOARD
+let virtualTarget=typing;
+function toggleKeyboard(){
+ $("keyboard").style.display="none";
+ let b=document.createElement("button");
+ b.textContent="⌨ Keyboard";b.id="showKeyboard";
+ b.style="position:fixed;bottom:12px;right:12px;z-index:40;padding:12px;border:0;border-radius:10px;background:#7165ed;color:white";
+ b.onclick=()=>{$("keyboard").style.display="block";b.remove()};
+ document.body.appendChild(b);
+}
+function minKeyboard(){$("keyboard").classList.toggle("keyboard-hidden");}
+function keyFlash(key){
+ let k=document.querySelectorAll(".key");
+ k.forEach(x=>x.classList.remove("active"));
+ let name=key.toLowerCase();
+ let match=document.querySelector(`.key[data-key="${CSS.escape(name)}"]`);
+ if(match){
+ match.classList.add("active");
+ setTimeout(()=>match.classList.remove("active"),180);
+ }
+}
+document.addEventListener("keydown",e=>{
+ if(e.target.tagName==="TEXTAREA"||e.target.tagName==="INPUT"){
+ keyFlash(e.key===" "?" ":e.key);
+ }
+});
+document.querySelectorAll(".key").forEach(k=>{
+ k.addEventListener("click",()=>{
+ let key=k.dataset.key;
+ let el=typing;
+ if(gameMode==="rush")el=$("rushinput");
+ if(gameMode==="race")el=$("raceinput");
+ if(gameMode==="memory")el=$("memoryinput");
+ if(el.disabled)return;
+ if(key==="shift")return;
+ if(key==="enter"){
+ el.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
+ return;
+ }
+ if(key==="backspace"){
+ let start=el.selectionStart,end=el.selectionEnd;
+ if(start===end&&start>0)start--;
+ el.setRangeText("",start,end,"end");
+ }else if(key==="arrowleft"){
+ el.setSelectionRange(Math.max(0,el.selectionStart-1),Math.max(0,el.selectionStart-1));
+ }else{
+ el.setRangeText(key,el.selectionStart,el.selectionEnd,"end");
+ }
+ el.dispatchEvent(new Event("input",{bubbles:true}));
+ el.focus();keyFlash(key);
+ });
+});
+
+// UTILITIES
+function toast(msg){
+ $("toast").textContent=msg;$("toast").style.display="block";
+ clearTimeout(window.toastTimer);
+ window.toastTimer=setTimeout(()=>$("toast").style.display="none",2200);
+}
+function escapeHTML(s){
+ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+// INIT
+makeText();reset();dashboard();renderBadges();
+</script>
+</body>
+</html>
